@@ -22,7 +22,7 @@
             height: 100%;
             object-fit: cover;
             z-index: 1;
-            transform: scaleX(-1); /* 自撮りミラーモード */
+            transform: scaleX(-1); /* 自撮りモード */
         }
 
         /* 2. ネオンタイトル */
@@ -34,7 +34,7 @@
             color: #fff;
             font-size: 8vw;
             font-weight: bold;
-            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
             z-index: 10;
         }
 
@@ -53,8 +53,8 @@
         /* 4. 中間：紹介用メニュー写真（大きく表示） */
         .menu-photo {
             position: fixed;
-            left: 35%; /* 屋台画像に少し重なる位置 */
-            width: 25%; /* 前より大きく */
+            left: 35%; 
+            width: 25%; 
             z-index: 6;
             border-radius: 15px;
             border: 3px solid #fff;
@@ -63,47 +63,30 @@
         #menu-h { top: 15%; } 
         #menu-o { top: 52%; } 
 
-        /* 5. 右側：食べる用イラスト（背景透過・サイズ拡大） */
+        /* 5. 右側：食べる用イラスト（加工済み画像用） */
         .eat-photo {
             position: fixed;
             z-index: 10;
-            /* 白い背景を透明化して下の映像と合成する設定 */
-            mix-blend-mode: multiply; 
+            /* 幽霊みたいに透けないように設定をリセット */
+            mix-blend-mode: normal; 
+            filter: drop-shadow(0 0 15px rgba(0,0,0,0.4));
         }
 
-        /* ホットク2：サイズを1.5倍に拡大 */
+        /* ホットク：サイズ150%・左右反転 */
         #eat-h {
             right: 3%;
             top: 25%;
-            width: 27%;      /* 18% × 1.5 = 約27% */
+            width: 30%; /* 150%サイズ */
             transform: scaleX(-1); 
         }
 
-        /* おでん2：サイズを1.5倍に拡大 */
+        /* おでん：サイズ150%・上下左右反転 */
         #eat-o {
             right: 8%;
             bottom: 12%;
-            width: 23%;      /* 15% × 1.5 = 約23% */
+            width: 25%; /* 150%サイズ */
             transform: scale(-1, -1); 
         }
-}
-
-        /* ホットク2：左右反転 */
-        #eat-h {
-            right: 3%;
-            top: 25%;
-            width: 18%;
-            transform: scaleX(-1); /* 左右のみ反転 */
-        }
-
-        /* おでん2：上下左右反転 */
-        #eat-o {
-            right: 8%;
-            bottom: 12%;
-            width: 15%;
-            transform: scale(-1, -1); /* 上下・左右の両方を反転 */
-        }
-
     </style>
 </head>
 <body>
@@ -129,12 +112,10 @@
                 });
                 video.srcObject = stream;
             } catch (err) {
-                console.error("カメラ起動エラー:", err);
+                console.error("Camera Error:", err);
             }
         }
         setupCamera();
     </script>
 </body>
 </html>
-
-
