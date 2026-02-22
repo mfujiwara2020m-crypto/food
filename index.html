@@ -14,60 +14,60 @@
             font-family: 'Arial', sans-serif;
         }
 
-        /* 1. カメラ映像（右側60%） */
+       /* 1. カメラ映像（右側50%） */
         #video {
             position: fixed;
             right: 0;
             top: 0;
-            width: 60%;
+            width: 50%; /* 50%に変更 */
             height: 100%;
             object-fit: cover;
             z-index: 1;
-            transform: scaleX(-1); /* 自撮りミラーモード */
+            transform: scaleX(-1);
         }
 
-        /* 2. ネオンタイトル */
-        .neon-title {
-            position: fixed;
-            top: 15px;
-            width: 100%;
-            text-align: center;
-            color: #fff;
-            font-size: 8vw; /* スマホで見やすいサイズ */
-            font-weight: bold;
-            text-shadow: 
-                0 0 5px #fff,
-                0 0 10px #fff,
-                0 0 20px #ff00ff,
-                0 0 30px #ff00ff,
-                0 0 40px #ff00ff;
-            z-index: 10;
-        }
-
-        /* 3. 左側：屋台全体写真（40%） */
+        /* 2. 左側：屋台全体写真（50%） */
         #yatai-main {
             position: fixed;
             left: 0;
             top: 0;
-            width: 40%;
+            width: 50%; /* 50%に変更 */
             height: 100%;
             object-fit: cover;
             z-index: 5;
-            border-right: 2px solid #ff00ff;
         }
 
-        /* 4. 中間：紹介用メニュー写真（40%-60%の間） */
+        /* 3. 中間：紹介用メニュー写真（大きく表示） */
         .menu-photo {
             position: fixed;
-            left: 41%;
-            width: 18%;
+            left: 35%; /* 屋台画像の上に少し重ねて配置 */
+            width: 25%; /* 18%から25%に拡大 */
             z-index: 6;
-            border-radius: 10px;
-            border: 2px solid #fff;
-            background: #fff;
+            border-radius: 15px;
+            border: 3px solid #fff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
         }
-        #menu-h { top: 15%; } /* ホットク（紹介） */
-        #menu-o { top: 55%; } /* おでん（紹介） */
+        #menu-h { top: 15%; } 
+        #menu-o { top: 52%; } 
+
+        /* 4. 右側：食べる用AR写真（位置とサイズ調整） */
+        .eat-photo {
+            position: fixed;
+            z-index: 10;
+        }
+        /* ホットク2：反転・サイズ調整 */
+        #eat-h {
+            right: 3%;        
+            top: 25%;         
+            width: 18%;       /* 少し小さく */
+            transform: scaleX(-1); 
+        }
+        /* おでん2：重ならないように下へ */
+        #eat-o {
+            right: 8%;       
+            bottom: 12%;      
+            width: 15%;       /* 少し小さく */
+        }
 
         /* 5. 右側：食べる用AR写真（カメラの上に浮く） */
         .eat-photo {
@@ -129,3 +129,4 @@
 </body>
 
 </html>
+
