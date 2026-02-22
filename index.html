@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>釜山モッパン体験 - 屋台編</title>
+    <style>
+        /* 基本設定 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* 1. カメラ映像（右側60%） */
+        #video {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 60%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            transform: scaleX(-1); /* 自撮りミラーモード */
+        }
+
+        /* 2. ネオンタイトル */
+        .neon-title {
+            position: fixed;
+            top: 15px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-size: 8vw; /* スマホで見やすいサイズ */
+            font-weight: bold;
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #fff,
+                0 0 20px #ff00ff,
+                0 0 30px #ff00ff,
+                0 0 40px #ff00ff;
+            z-index: 10;
+        }
+
+        /* 3. 左側：屋台全体写真（40%） */
+        #yatai-main {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 40%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 5;
+            border-right: 2px solid #ff00ff;
+        }
+
+        /* 4. 中間：紹介用メニュー写真（40%-60%の間） */
+        .menu-photo {
+            position: fixed;
+            left: 41%;
+            width: 18%;
+            z-index: 6;
+            border-radius: 10px;
+            border: 2px solid #fff;
+            background: #fff;
+        }
+        #menu-h { top: 15%; } /* ホットク（紹介） */
+        #menu-o { top: 55%; } /* おでん（紹介） */
+
+        /* 5. 右側：食べる用AR写真（カメラの上に浮く） */
+        .eat-photo {
+            position: fixed;
+            z-index: 10;
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+        }
+        /* ホットク2：画面中央右寄り（口元に来るように調整） */
+        #eat-h {
+            right: 15%;
+            top: 35%;
+            width: 30%;
+        }
+        /* おでん2：右下寄り */
+        #eat-o {
+            right: 5%;
+            bottom: 10%;
+            width: 25%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <video id="video" autoplay playsinline></video>
+
+    <div class="neon-title">포장마차</div>
+
+    <img src="yatai.jpg" id="yatai-main">
+
+    <img src="img-hotteok.jpg" class="menu-photo" id="menu-h">
+    <img src="img-oden.jpg" class="menu-photo" id="menu-o">
+
+    <img src="img-hotteok2.jpg" class="eat-photo" id="eat-h">
+    <img src="img-oden2.jpg" class="eat-photo" id="eat-o">
+
+    <script>
+        // カメラの起動設定
+        const video = document.getElementById('video');
+
+        async function setupCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "user" }, // インカメラを使用
+                    audio: false
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("カメラの起動に失敗しました:", err);
+                alert("カメラの使用を許可してください。");
+            }
+        }
+
+        setupCamera();
+    </script>
+</body>
+</html>
