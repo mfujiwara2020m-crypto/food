@@ -22,7 +22,7 @@
             height: 100%;
             object-fit: cover;
             z-index: 1;
-            transform: scaleX(-1); /* 自撮りモード */
+            transform: scaleX(-1);
         }
 
         /* 2. ネオンタイトル */
@@ -50,7 +50,7 @@
             border-right: 2px solid #ff00ff;
         }
 
-        /* 4. 中間：紹介用メニュー写真（大きく表示） */
+        /* 4. 中間：紹介用メニュー写真 */
         .menu-photo {
             position: fixed;
             left: 35%; 
@@ -63,22 +63,23 @@
         #menu-h { top: 15%; } 
         #menu-o { top: 52%; } 
 
-        /* 5. 右側：食べる用イラスト（加工済み画像用） */
+        /* 5. 右側：食べる用イラスト（ホットクのみ） */
         .eat-photo {
             position: fixed;
             z-index: 10;
-            /* 幽霊みたいに透けないように設定をリセット */
             mix-blend-mode: normal; 
             filter: drop-shadow(0 0 15px rgba(0,0,0,0.4));
         }
 
-        /* ホットク：サイズ150%・左右反転 */
+        /* ホットク2：サイズ150%・左右反転 */
         #eat-h {
             right: 3%;
             top: 25%;
-            width: 30%; /* 150%サイズ */
+            width: 30%; 
             transform: scaleX(-1); 
         }
+
+        /* おでん2用のCSS設定は削除しました */
 
     </style>
 </head>
@@ -93,7 +94,6 @@
     <img src="img-oden.jpg" class="menu-photo" id="menu-o">
 
     <img src="img-hotteok2.jpg" class="eat-photo" id="eat-h">
-    <img src="img-oden2.jpg" class="eat-photo" id="eat-o">
 
     <script>
         const video = document.getElementById('video');
@@ -112,4 +112,3 @@
     </script>
 </body>
 </html>
-
