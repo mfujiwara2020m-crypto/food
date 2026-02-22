@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>釜山モッパン体験 - 屋台編</title>
     <style>
-        /* 基本設定 */
         body {
             margin: 0;
             padding: 0;
@@ -14,34 +13,48 @@
             font-family: 'Arial', sans-serif;
         }
 
-       /* 1. カメラ映像（右側50%） */
+        /* 1. カメラ映像（右側50%） */
         #video {
             position: fixed;
             right: 0;
             top: 0;
-            width: 50%; /* 50%に変更 */
+            width: 50%;
             height: 100%;
             object-fit: cover;
             z-index: 1;
-            transform: scaleX(-1);
+            transform: scaleX(-1); /* 自撮りミラーモード */
         }
 
-        /* 2. 左側：屋台全体写真（50%） */
+        /* 2. ネオンタイトル */
+        .neon-title {
+            position: fixed;
+            top: 15px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-size: 8vw;
+            font-weight: bold;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+            z-index: 10;
+        }
+
+        /* 3. 左側：屋台全体写真（50%） */
         #yatai-main {
             position: fixed;
             left: 0;
             top: 0;
-            width: 50%; /* 50%に変更 */
+            width: 50%;
             height: 100%;
             object-fit: cover;
             z-index: 5;
+            border-right: 2px solid #ff00ff;
         }
 
-        /* 3. 中間：紹介用メニュー写真（大きく表示） */
+        /* 4. 中間：紹介用メニュー写真（大きく表示） */
         .menu-photo {
             position: fixed;
-            left: 35%; /* 屋台画像の上に少し重ねて配置 */
-            width: 25%; /* 18%から25%に拡大 */
+            left: 35%; /* 屋台画像に少し重なる位置 */
+            width: 25%; /* 前より大きく */
             z-index: 6;
             border-radius: 15px;
             border: 3px solid #fff;
@@ -50,45 +63,27 @@
         #menu-h { top: 15%; } 
         #menu-o { top: 52%; } 
 
-        /* 4. 右側：食べる用AR写真（位置とサイズ調整） */
-        .eat-photo {
-            position: fixed;
-            z-index: 10;
-        }
-        /* ホットク2：反転・サイズ調整 */
-        #eat-h {
-            right: 3%;        
-            top: 25%;         
-            width: 18%;       /* 少し小さく */
-            transform: scaleX(-1); 
-        }
-        /* おでん2：重ならないように下へ */
-        #eat-o {
-            right: 8%;       
-            bottom: 12%;      
-            width: 15%;       /* 少し小さく */
-        }
-
-        /* 5. 右側：食べる用AR写真（カメラの上に浮く） */
+        /* 5. 右側：食べる用イラスト（配置・反転・サイズ調整） */
         .eat-photo {
             position: fixed;
             z-index: 10;
             filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
         }
 
-        /* ホットク2：さらに右寄り、サイズ小さめ、反転 */
+        /* ホットク2：左右反転 */
         #eat-h {
-            right: 5%;        /* さらに右側へ寄せる */
-            top: 30%;         /* 少し上に配置 */
-            width: 20%;       /* サイズを30%→20%に縮小 */
-            transform: scaleX(-1); /* 画像を左右反転させる */
+            right: 3%;
+            top: 25%;
+            width: 18%;
+            transform: scaleX(-1); /* 左右のみ反転 */
         }
 
-        /* おでん2：右下寄り、サイズ小さめ */
+        /* おでん2：上下左右反転 */
         #eat-o {
-            right: 10%;       /* ホットクと重ならないよう少し左に */
-            bottom: 15%;      /* 重なり防止のため位置を調整 */
-            width: 18%;       /* サイズを25%→18%に縮小 */
+            right: 8%;
+            bottom: 12%;
+            width: 15%;
+            transform: scale(-1, -1); /* 上下・左右の両方を反転 */
         }
 
     </style>
@@ -96,7 +91,6 @@
 <body>
 
     <video id="video" autoplay playsinline></video>
-
     <div class="neon-title">포장마차</div>
 
     <img src="yatai.jpg" id="yatai-main">
@@ -108,25 +102,19 @@
     <img src="img-oden2.jpg" class="eat-photo" id="eat-o">
 
     <script>
-        // カメラの起動設定
         const video = document.getElementById('video');
-
         async function setupCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "user" }, // インカメラを使用
+                    video: { facingMode: "user" },
                     audio: false
                 });
                 video.srcObject = stream;
             } catch (err) {
-                console.error("カメラの起動に失敗しました:", err);
-                alert("カメラの使用を許可してください。");
+                console.error("カメラ起動エラー:", err);
             }
         }
-
         setupCamera();
     </script>
 </body>
-
 </html>
-
