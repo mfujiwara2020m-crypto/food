@@ -63,11 +63,29 @@
         #menu-h { top: 15%; } 
         #menu-o { top: 52%; } 
 
-        /* 5. 右側：食べる用イラスト（配置・反転・サイズ調整） */
+        /* 5. 右側：食べる用イラスト（背景透過・サイズ拡大） */
         .eat-photo {
             position: fixed;
             z-index: 10;
-           filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)) mix-blend-mode: multiply; /* これを追加 */
+            /* 白い背景を透明化して下の映像と合成する設定 */
+            mix-blend-mode: multiply; 
+        }
+
+        /* ホットク2：サイズを1.5倍に拡大 */
+        #eat-h {
+            right: 3%;
+            top: 25%;
+            width: 27%;      /* 18% × 1.5 = 約27% */
+            transform: scaleX(-1); 
+        }
+
+        /* おでん2：サイズを1.5倍に拡大 */
+        #eat-o {
+            right: 8%;
+            bottom: 12%;
+            width: 23%;      /* 15% × 1.5 = 約23% */
+            transform: scale(-1, -1); 
+        }
 }
 
         /* ホットク2：左右反転 */
@@ -118,4 +136,5 @@
     </script>
 </body>
 </html>
+
 
