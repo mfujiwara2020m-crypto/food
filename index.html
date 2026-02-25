@@ -14,7 +14,7 @@ body{
     font-family:Arial, sans-serif;
 }
 
-/* カメラ */
+/* カメラ右半分 */
 #video{
     position:fixed;
     right:0;
@@ -26,7 +26,7 @@ body{
     z-index:1;
 }
 
-/* タイトル */
+/* ネオンタイトル */
 .neon-title{
     position:fixed;
     top:15px;
@@ -50,6 +50,19 @@ body{
     border-right:2px solid #ff00ff;
 }
 
+/* 中央メニュー写真 */
+.menu-photo{
+    position:fixed;
+    left:35%;
+    width:25%;
+    z-index:6;
+    border-radius:15px;
+    border:3px solid #fff;
+    box-shadow:0 0 15px rgba(0,0,0,0.5);
+}
+#menu-h{ top:15%; }
+#menu-o{ top:52%; }
+
 /* ホットク（かじられる） */
 #eat-h{
     position:fixed;
@@ -67,6 +80,12 @@ body{
 <video id="video" autoplay playsinline></video>
 <div class="neon-title">포장마차</div>
 <img src="yatai.jpg" id="yatai-main">
+
+<!-- 中央メニュー写真 -->
+<img src="img-hotteok.jpg" class="menu-photo" id="menu-h">
+<img src="img-oden.jpg" class="menu-photo" id="menu-o">
+
+<!-- ホットクcanvas -->
 <canvas id="eat-h"></canvas>
 
 <!-- MediaPipe -->
@@ -78,15 +97,18 @@ const video = document.getElementById('video');
 const canvas = document.getElementById('eat-h');
 const ctx = canvas.getContext('2d');
 
-let biteCooldown = false;
-
 // カメラ起動
 async function setupCamera(){
-    const stream = await navigator.mediaDevices.getUserMedia({
-        video:{ facingMode:"user" },
-        audio:false
-    });
-    video.srcObject = stream;
+    try{
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video:{ facingMode:"user" },
+            audio:false
+        });
+        video.srcObject = stream;
+    }catch(err){
+        alert("カメラにアクセスできません");
+        console.error(err);
+    }
 }
 setupCamera();
 
@@ -99,11 +121,31 @@ foodImg.onload = ()=>{
     ctx.drawImage(foodImg,0,0);
 };
 
+// かじり形関数
+function biteAt(x, y){
+    ctx.globalCompositeOperation = "destination-out";
+    const radius = 70;
+
+    ctx.beginPath();
+    for(let i=0; i<=20; i++){
+        const angle = Math.PI*(i/20);
+        const randomRadius = radius + Math.random()*15;
+        const px = x + randomRadius*Math.cos(angle);
+        const py = y + randomRadius*Math.sin(angle);
+        if(i===0){
+            ctx.moveTo(px,py);
+        }else{
+            ctx.lineTo(px,py);
+        }
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalCompositeOperation = "source-over";
+}
+
 // FaceMesh設定
 const faceMesh = new FaceMesh({
-    locateFile:(file)=>{
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
-    }
+    locateFile:(file)=>`https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
 });
 
 faceMesh.setOptions({
@@ -115,7 +157,7 @@ faceMesh.setOptions({
 
 faceMesh.onResults(onResults);
 
-// 口検出
+// 口が完全にホットク内にある場合だけ削る
 function onResults(results){
     if(!results.multiFaceLandmarks.length) return;
 
@@ -123,28 +165,36 @@ function onResults(results){
 
     const upperLip = landmarks[13];
     const lowerLip = landmarks[14];
+    const mouthLeft  = landmarks[61];
+    const mouthRight = landmarks[291];
 
     const mouthOpen = Math.abs(upperLip.y - lowerLip.y);
+    if(mouthOpen < 0.035) return;
 
-    if(mouthOpen > 0.03 && !biteCooldown){
-        bite();
-        biteCooldown = true;
-        setTimeout(()=>biteCooldown=false,600);
+    const videoWidth  = video.offsetWidth;
+    const videoHeight = video.offsetHeight;
+
+    // 左右反転補正
+    const leftX  = (1 - mouthLeft.x)  * videoWidth + window.innerWidth/2;
+    const rightX = (1 - mouthRight.x) * videoWidth + window.innerWidth/2;
+
+    const topY    = upperLip.y * videoHeight;
+    const bottomY = lowerLip.y * videoHeight;
+
+    const rect = canvas.getBoundingClientRect();
+
+    // 口全体がホットクに完全に入った場合のみ削る
+    const fullyInside =
+        leftX > rect.left &&
+        rightX < rect.right &&
+        topY > rect.top &&
+        bottomY < rect.bottom;
+
+    if(fullyInside){
+        const centerX = (leftX + rightX)/2 - rect.left;
+        const centerY = (topY + bottomY)/2 - rect.top;
+        biteAt(centerX, centerY);
     }
-}
-
-// かじり処理
-function bite(){
-    ctx.globalCompositeOperation = "destination-out";
-
-    const randomX = Math.random()*canvas.width;
-    const randomY = Math.random()*canvas.height;
-
-    ctx.beginPath();
-    ctx.arc(randomX, randomY, 40, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.globalCompositeOperation = "source-over";
 }
 
 // カメラ連携
