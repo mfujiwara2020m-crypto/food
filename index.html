@@ -66,10 +66,10 @@ body{
 /* ホットク（かじられる） */
 #eat-h{
     position:fixed;
-    right:3%;
-    top:25%;
-    width:30%;  /* CSSサイズ */
-    height:auto;
+    right:5%;
+    top:15%;
+    width:auto;     /* CSSで画面に合わせるだけ */
+    height:60%;     /* 高さは画面の60% */
     z-index:20;
     filter:drop-shadow(0 0 15px rgba(0,0,0,0.4));
 }
@@ -117,22 +117,21 @@ setupCamera();
 const foodImg = new Image();
 foodImg.src = "img-hotteok2.jpg";
 foodImg.onload = ()=>{
-    // canvasの幅をCSSに合わせる
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
+    // canvasサイズは画像サイズのまま
+    canvas.width = foodImg.naturalWidth;
+    canvas.height = foodImg.naturalHeight;
     ctx.drawImage(foodImg, 0, 0, canvas.width, canvas.height);
 };
 
 // かじり形関数
 function biteAt(x, y){
     ctx.globalCompositeOperation = "destination-out";
-    const radius = 70;
+    const radius = 100; // 大きめにしてリアル感アップ
 
     ctx.beginPath();
     for(let i=0; i<=20; i++){
         const angle = Math.PI*(i/20);
-        const randomRadius = radius + Math.random()*15;
+        const randomRadius = radius + Math.random()*20;
         const px = x + randomRadius*Math.cos(angle);
         const py = y + randomRadius*Math.sin(angle);
         if(i===0){
@@ -172,7 +171,7 @@ function onResults(results){
     const mouthRight = landmarks[291];
 
     const mouthOpen = Math.abs(upperLip.y - lowerLip.y);
-    if(mouthOpen < 0.035) return; // 少し開いた時だけ
+    if(mouthOpen < 0.035) return;
 
     const videoRect = video.getBoundingClientRect();
     const rect = canvas.getBoundingClientRect();
@@ -181,16 +180,15 @@ function onResults(results){
     let centerX = (mouthLeft.x + mouthRight.x)/2;
     let centerY = (upperLip.y + lowerLip.y)/2;
 
-    // videoは左右反転しているので反転補正
+    // videoは左右反転しているので補正
     centerX = (1 - centerX) * videoRect.width + videoRect.left;
-
     centerY = centerY * videoRect.height + videoRect.top;
 
-    // scale調整
+    // scale調整（canvas内部座標に変換）
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
-    // ホットク内に口中心が入ったか
+    // ホットク内に口中心が入ったら削る
     if(centerX > rect.left && centerX < rect.right &&
        centerY > rect.top && centerY < rect.bottom){
 
