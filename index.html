@@ -66,10 +66,10 @@ body{
 /* ホットク（かじられる） */
 #eat-h{
     position:fixed;
-    right:5%;
-    top:15%;
-    width:auto;     /* CSSで画面に合わせるだけ */
-    height:60%;     /* 高さは画面の60% */
+    right:3%;
+    top:10%;
+    width:auto;    /* 幅は自動で高さに合わせる */
+    height:80%;    /* 画面の高さ80% */
     z-index:20;
     filter:drop-shadow(0 0 15px rgba(0,0,0,0.4));
 }
@@ -117,28 +117,26 @@ setupCamera();
 const foodImg = new Image();
 foodImg.src = "img-hotteok2.jpg";
 foodImg.onload = ()=>{
-    // canvasサイズは画像サイズのまま
+    // canvas内部は元画像サイズ
     canvas.width = foodImg.naturalWidth;
     canvas.height = foodImg.naturalHeight;
     ctx.drawImage(foodImg, 0, 0, canvas.width, canvas.height);
 };
 
-// かじり形関数
+// 外側からかじるbite関数
 function biteAt(x, y){
     ctx.globalCompositeOperation = "destination-out";
-    const radius = 100; // 大きめにしてリアル感アップ
+    const radius = 120; // 大きめで迫力
+    const points = 35;
 
     ctx.beginPath();
-    for(let i=0; i<=20; i++){
-        const angle = Math.PI*(i/20);
-        const randomRadius = radius + Math.random()*20;
-        const px = x + randomRadius*Math.cos(angle);
-        const py = y + randomRadius*Math.sin(angle);
-        if(i===0){
-            ctx.moveTo(px,py);
-        }else{
-            ctx.lineTo(px,py);
-        }
+    for(let i=0; i<=points; i++){
+        const angle = (Math.PI*2)*(i/points);
+        const r = radius + Math.random()*40 - 20; // 凸凹
+        const px = x + r * Math.cos(angle);
+        const py = y + r * Math.sin(angle);
+        if(i===0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
     }
     ctx.closePath();
     ctx.fill();
@@ -159,7 +157,7 @@ faceMesh.setOptions({
 
 faceMesh.onResults(onResults);
 
-// 口の中心がホットク内に入ったら削る
+// 口の左右端で外側からかじる
 function onResults(results){
     if(!results.multiFaceLandmarks.length) return;
 
@@ -176,24 +174,23 @@ function onResults(results){
     const videoRect = video.getBoundingClientRect();
     const rect = canvas.getBoundingClientRect();
 
-    // 口の中心座標（画面座標）
-    let centerX = (mouthLeft.x + mouthRight.x)/2;
-    let centerY = (upperLip.y + lowerLip.y)/2;
+    // 左右口角の画面座標
+    let leftX  = (1 - mouthLeft.x)  * videoRect.width + videoRect.left;
+    let rightX = (1 - mouthRight.x) * videoRect.width + videoRect.left;
+    let centerY = ((upperLip.y + lowerLip.y)/2) * videoRect.height + videoRect.top;
 
-    // videoは左右反転しているので補正
-    centerX = (1 - centerX) * videoRect.width + videoRect.left;
-    centerY = centerY * videoRect.height + videoRect.top;
-
-    // scale調整（canvas内部座標に変換）
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
-    // ホットク内に口中心が入ったら削る
-    if(centerX > rect.left && centerX < rect.right &&
-       centerY > rect.top && centerY < rect.bottom){
+    // 外側からかじる感覚で口角をランダム選択
+    const biteX_screen = Math.random() < 0.5 ? leftX : rightX;
+    const biteY_screen = centerY;
 
-        const canvasX = (centerX - rect.left) * scaleX;
-        const canvasY = (centerY - rect.top) * scaleY;
+    if(biteX_screen > rect.left && biteX_screen < rect.right &&
+       biteY_screen > rect.top && biteY_screen < rect.bottom){
+
+        const canvasX = (biteX_screen - rect.left) * scaleX;
+        const canvasY = (biteY_screen - rect.top) * scaleY;
 
         biteAt(canvasX, canvasY);
     }
