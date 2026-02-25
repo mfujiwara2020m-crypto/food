@@ -68,7 +68,8 @@ body{
     position:fixed;
     right:3%;
     top:25%;
-    width:30%;
+    width:30%;  /* CSSサイズ */
+    height:auto;
     z-index:20;
     filter:drop-shadow(0 0 15px rgba(0,0,0,0.4));
 }
@@ -116,9 +117,11 @@ setupCamera();
 const foodImg = new Image();
 foodImg.src = "img-hotteok2.jpg";
 foodImg.onload = ()=>{
-    canvas.width = foodImg.width;
-    canvas.height = foodImg.height;
-    ctx.drawImage(foodImg,0,0);
+    // canvasの幅をCSSに合わせる
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    ctx.drawImage(foodImg, 0, 0, canvas.width, canvas.height);
 };
 
 // かじり形関数
@@ -157,7 +160,7 @@ faceMesh.setOptions({
 
 faceMesh.onResults(onResults);
 
-// 口が完全にホットク内にある場合だけ削る
+// 口の中心がホットク内に入ったら削る
 function onResults(results){
     if(!results.multiFaceLandmarks.length) return;
 
@@ -169,31 +172,32 @@ function onResults(results){
     const mouthRight = landmarks[291];
 
     const mouthOpen = Math.abs(upperLip.y - lowerLip.y);
-    if(mouthOpen < 0.035) return;
+    if(mouthOpen < 0.035) return; // 少し開いた時だけ
 
-    const videoWidth  = video.offsetWidth;
-    const videoHeight = video.offsetHeight;
-
-    // 左右反転補正
-    const leftX  = (1 - mouthLeft.x)  * videoWidth + window.innerWidth/2;
-    const rightX = (1 - mouthRight.x) * videoWidth + window.innerWidth/2;
-
-    const topY    = upperLip.y * videoHeight;
-    const bottomY = lowerLip.y * videoHeight;
-
+    const videoRect = video.getBoundingClientRect();
     const rect = canvas.getBoundingClientRect();
 
-    // 口全体がホットクに完全に入った場合のみ削る
-    const fullyInside =
-        leftX > rect.left &&
-        rightX < rect.right &&
-        topY > rect.top &&
-        bottomY < rect.bottom;
+    // 口の中心座標（画面座標）
+    let centerX = (mouthLeft.x + mouthRight.x)/2;
+    let centerY = (upperLip.y + lowerLip.y)/2;
 
-    if(fullyInside){
-        const centerX = (leftX + rightX)/2 - rect.left;
-        const centerY = (topY + bottomY)/2 - rect.top;
-        biteAt(centerX, centerY);
+    // videoは左右反転しているので反転補正
+    centerX = (1 - centerX) * videoRect.width + videoRect.left;
+
+    centerY = centerY * videoRect.height + videoRect.top;
+
+    // scale調整
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    // ホットク内に口中心が入ったか
+    if(centerX > rect.left && centerX < rect.right &&
+       centerY > rect.top && centerY < rect.bottom){
+
+        const canvasX = (centerX - rect.left) * scaleX;
+        const canvasY = (centerY - rect.top) * scaleY;
+
+        biteAt(canvasX, canvasY);
     }
 }
 
